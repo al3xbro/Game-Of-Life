@@ -26,4 +26,14 @@ public class Cell {
 	public Color getColor() {
 		return color;
 	}
+	
+	@Override
+	public String toString() {
+		if (state) {
+			return "1";
+		}
+		else {
+			return "0";
+		}
+	}
 }
