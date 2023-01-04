@@ -1,21 +1,50 @@
 package main;
 import java.awt.Color;
-import java.util.Stack;
+import java.util.ArrayList;
+import java.util.Queue;
+import java.util.LinkedList;
 
 public class GameBoard {
 	
 	Cell[][] board;
-	int xDim, yDim; // max board indices
+	int rowCount, colCount; // board size
 	
-	public GameBoard(int xDim, int yDim) {
-		board = new Cell[xDim][yDim];
-		this.xDim = xDim - 1;
-		this.yDim = yDim - 1;
-		for (int i = 0; i < xDim; i++) {
-			for (int j = 0; j < yDim; j++) {
+	/**
+	 * creates a new board with no live cells
+	 * 
+	 * @param xDim: number of rowCounts
+	 * @param yDim: number of columns
+	 */
+	public GameBoard(int rowCount, int colCount) {
+		board = new Cell[rowCount][colCount];
+		this.rowCount = rowCount;
+		this.colCount = colCount;
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
 				board[i][j] = new Cell(Color.WHITE);
 			}
 		}
+	}
+	
+	/**
+	 * creates a new board with a premade array of cells
+	 * 
+	 * @param premade: premade 2d array of Cells
+	 */
+	public GameBoard(int[][] premade) { // premade board
+		board = new Cell[premade.length][premade[0].length];
+		for (int i = 0; i < premade.length; i++) {
+			for (int j = 0; j < premade[0].length; j++) {
+				if (premade[i][j] == 1) {
+					board[i][j] = new Cell(Color.WHITE, true);
+				}
+				else {
+					board[i][j] = new Cell(Color.WHITE, false);
+				}
+			}
+		}
+		rowCount = premade.length;
+		colCount = premade[0].length;
 	}
 	
 	public void editCell(int x, int y) {
@@ -23,81 +52,82 @@ public class GameBoard {
 	}
 	
 	/**
+	 * finds all live neighbors of a cell
+	 * 
 	 * @param x: x coordinate of cell
 	 * @param y: y coordinate of cell
-	 * @return int: the number of alive neighbors
+	 * @return ArrayList<Cell>: ArrayList of all live neighbors
 	 */
-	private int getAliveNeighbors(int x, int y) {
-		int neighbors = 0;
-		
-		try { // testing every neighbor
-			if (board[x-1][y-1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x][y-1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x+1][y-1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x-1][y].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x+1][y].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x-1][y+1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x][y+1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-		try {
-			if (board[x+1][y+1].getState()) {neighbors++;}
-		} catch (ArrayIndexOutOfBoundsException e) {}
-			
-		return neighbors;
-	}
-	
-	/**
-	 * @param x: x coordinate of cell
-	 * @param y: y coordinate of cell
-	 * @return boolean: whether or not to change the state of the cell
-	 */
-	private boolean change(int x, int y) {
-		boolean newState; // the cell's updated state
-		int numNeighbors = getAliveNeighbors(x, y);
-		
-		if (numNeighbors < 2 || numNeighbors >= 4) { // find new state of the cell
-			newState = false;
-		}
-		else if (numNeighbors == 3) {
-			newState = true;
-		}
-		else {
-			return false;
-		}
-		
-		return newState != board[x][y].getState();
-	}
-	
-	public void iterate() {
-		Stack<Cell> toChange = new Stack<>();
-		for (int i = 0; i <= xDim; i++) {
-			for (int j = 0; j <= yDim; j++) {
-				if (change(i, j)) {
-					toChange.push(board[i][j]);
+	private ArrayList<Cell> getNeighbors(int x, int y) {
+		ArrayList<Cell> aliveNeighbors = new ArrayList<>();
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+				if (((x+i) >= 0 && (x+i) < rowCount) && // checking within xDim
+					((y+j) >= 0 && (y+j) < colCount) && // checking within yDim
+					!(i == 0 && j == 0)) { // checking not original cell
+					if (board[x+i][y+j].getState()) {
+						aliveNeighbors.add(board[x+i][y+j]);
+					}
 				}
 			}
 		}
-		while (!toChange.empty()) {
-			Cell cellChange = toChange.pop();
-			cellChange.setState(!cellChange.getState());
-		}
+		return aliveNeighbors;
 	}
 	
+	/**
+	 * finds the new state and color of a cell
+	 * 
+	 * @param x: x coordinate of cell
+	 * @param y: y coordinate of cell
+	 * @return Cell: new cell with updated properties
+	 */
+	private Cell newState(int x, int y) {
+		ArrayList<Cell> aliveNeighbors = getNeighbors(x, y);
+		
+		if (board[x][y].getState()) {
+			if (aliveNeighbors.size() < 2 || aliveNeighbors.size() > 3) { // it just died
+				return new Cell(null, false);
+			}
+			else { // it stays alive
+				return new Cell(null, true);
+			}
+		}
+		
+		else {
+			if (aliveNeighbors.size() == 3) { // it just livened
+				return new Cell(null, true);
+			}
+			else { // it stays dead
+				return new Cell(null, false); 
+			}
+		}
+		
+	}
+	
+	/**
+	 * iterates through the whole board
+	 */
+	public void iterate() {
+		Queue<Cell> toChange = new LinkedList<>();
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
+				toChange.add(newState(i, j));
+			}
+		}
+		
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
+				board[i][j] = toChange.remove();
+			}
+		}
+	}
+	/**
+	 * prints the board in its current state
+	 */
 	public void printBoard() {
-		for (int i = 0; i <= xDim; i++) {
-			for (int j = 0; j <= yDim; j++) {
+		System.out.println("----------------------------");
+		for (int i = 0; i < rowCount; i++) {
+			for (int j = 0; j < colCount; j++) {
 				System.out.print(board[i][j]);
 			}
 			System.out.println();

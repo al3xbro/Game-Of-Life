@@ -11,6 +11,11 @@ public class Cell {
 		state = false;
 	}
 	
+	public Cell(Color color, boolean state) {
+		this.color = color;
+		this.state = state;
+	}
+	
 	public void setState(boolean state) {
 		this.state = state;
 	}
