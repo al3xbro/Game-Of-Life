@@ -19,9 +19,9 @@ public class GameBoard {
 		board = new Cell[rowCount][colCount];
 		this.rowCount = rowCount;
 		this.colCount = colCount;
-		for (int i = 0; i < rowCount; i++) {
-			for (int j = 0; j < colCount; j++) {
-				board[i][j] = new Cell(Color.WHITE);
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				board[row][col] = new Cell(Color.WHITE);
 			}
 		}
 	}
@@ -33,13 +33,13 @@ public class GameBoard {
 	 */
 	public GameBoard(int[][] premade) { // premade board
 		board = new Cell[premade.length][premade[0].length];
-		for (int i = 0; i < premade.length; i++) {
-			for (int j = 0; j < premade[0].length; j++) {
-				if (premade[i][j] == 1) {
-					board[i][j] = new Cell(Color.WHITE, true);
+		for (int row = 0; row < premade.length; row++) {
+			for (int col = 0; col < premade[0].length; col++) {
+				if (premade[row][col] == 1) {
+					board[row][col] = new Cell(Color.WHITE, true);
 				}
 				else {
-					board[i][j] = new Cell(Color.WHITE, false);
+					board[row][col] = new Cell(Color.WHITE, false);
 				}
 			}
 		}
@@ -60,13 +60,13 @@ public class GameBoard {
 	 */
 	private ArrayList<Cell> getNeighbors(int x, int y) {
 		ArrayList<Cell> aliveNeighbors = new ArrayList<>();
-		for (int i = -1; i <= 1; i++) {
-			for (int j = -1; j <= 1; j++) {
-				if (((x+i) >= 0 && (x+i) < rowCount) && // checking within xDim
-					((y+j) >= 0 && (y+j) < colCount) && // checking within yDim
-					!(i == 0 && j == 0)) { // checking not original cell
-					if (board[x+i][y+j].getState()) {
-						aliveNeighbors.add(board[x+i][y+j]);
+		for (int row = -1; row <= 1; row++) {
+			for (int col = -1; col <= 1; col++) {
+				if (((x+row) >= 0 && (x+row) < rowCount) && // checking within xDim
+					((y+col) >= 0 && (y+col) < colCount) && // checking within yDim
+					!(row == 0 && col == 0)) { // checking not original cell
+					if (board[x+row][y+col].getState()) {
+						aliveNeighbors.add(board[x+row][y+col]);
 					}
 				}
 			}
@@ -86,19 +86,19 @@ public class GameBoard {
 		
 		if (board[x][y].getState()) {
 			if (aliveNeighbors.size() < 2 || aliveNeighbors.size() > 3) { // it just died
-				return new Cell(null, false);
+				return new Cell(null, false); // TODO: make it leave a fresh trail
 			}
 			else { // it stays alive
-				return new Cell(null, true);
+				return new Cell(null, true); // TODO: make it change color based on surroundings
 			}
 		}
 		
 		else {
 			if (aliveNeighbors.size() == 3) { // it just livened
-				return new Cell(null, true);
+				return new Cell(null, true); // TODO: make it inherit color
 			}
 			else { // it stays dead
-				return new Cell(null, false); 
+				return new Cell(null, false); // TODO: make it slowly lose trail
 			}
 		}
 		
@@ -109,26 +109,27 @@ public class GameBoard {
 	 */
 	public void iterate() {
 		Queue<Cell> toChange = new LinkedList<>();
-		for (int i = 0; i < rowCount; i++) {
-			for (int j = 0; j < colCount; j++) {
-				toChange.add(newState(i, j));
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				toChange.add(newState(row, col));
 			}
 		}
 		
-		for (int i = 0; i < rowCount; i++) {
-			for (int j = 0; j < colCount; j++) {
-				board[i][j] = toChange.remove();
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				board[row][col] = toChange.remove();
 			}
 		}
 	}
+	
 	/**
 	 * prints the board in its current state
 	 */
 	public void printBoard() {
 		System.out.println("----------------------------");
-		for (int i = 0; i < rowCount; i++) {
-			for (int j = 0; j < colCount; j++) {
-				System.out.print(board[i][j]);
+		for (int row = 0; row < rowCount; row++) {
+			for (int col = 0; col < colCount; col++) {
+				System.out.print(board[row][col]);
 			}
 			System.out.println();
 		}
