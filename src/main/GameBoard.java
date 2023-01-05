@@ -95,8 +95,7 @@ public class GameBoard {
 				averageNeighborRGB[0] /= aliveNeighbors.size();
 				averageNeighborRGB[1] /= aliveNeighbors.size();
 				averageNeighborRGB[2] /= aliveNeighbors.size();
-				
-				return new Cell(new Color((averageNeighborRGB[0] + currColor.getRed())/2, (averageNeighborRGB[1] + currColor.getGreen())/2, (averageNeighborRGB[2] + currColor.getBlue())/2), true);
+				return new Cell(new Color((averageNeighborRGB[0] + currColor.getRed())/510, (averageNeighborRGB[1] + currColor.getGreen())/510, (averageNeighborRGB[2] + currColor.getBlue())/510), true);
 			}
 		}
 		
@@ -111,7 +110,7 @@ public class GameBoard {
 				averageNeighborRGB[0] /= aliveNeighbors.size();
 				averageNeighborRGB[1] /= aliveNeighbors.size();
 				averageNeighborRGB[2] /= aliveNeighbors.size();
-				return new Cell(new Color(averageNeighborRGB[0], averageNeighborRGB[1], averageNeighborRGB[2]), true);
+				return new Cell(new Color(averageNeighborRGB[0]/255, averageNeighborRGB[1]/255, averageNeighborRGB[2]/255), true);
 				
 			}
 			else { // it stays dead
