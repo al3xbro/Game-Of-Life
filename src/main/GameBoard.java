@@ -143,6 +143,10 @@ public class GameBoard {
 		}
 	}
 	
+	public Cell[][] getBoard() {
+		return board;
+	}
+	
 	/**
 	 * prints the board in its current state
 	 */
