@@ -33,12 +33,7 @@ public class GameBoard {
 	 * @param premade: premade 2d array of Cells
 	 */
 	public GameBoard(Cell[][] premade) { // premade board
-		board = new Cell[premade.length][premade[0].length];
-		for (int row = 0; row < premade.length; row++) {
-			for (int col = 0; col < premade[0].length; col++) {
-				board[row][col] = premade[row][col];
-			}
-		}
+		board = premade;
 		rowCount = premade.length;
 		colCount = premade[0].length;
 	}
